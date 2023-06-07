@@ -11,11 +11,13 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-type Login struct {
+// Credentials is a struct for login input
+type Credentials struct {
 	Login    string `json:"login" binding:"required"`
 	Password string `json:"password" binding:"required"`
 }
 
+// RegisterUser is a handler for registering a new user
 func RegisterUser(c *gin.Context) {
 
 	user, err := validateUserInput(c)
@@ -26,17 +28,18 @@ func RegisterUser(c *gin.Context) {
 
 	result := database.DB.Create(user)
 	if result.Error != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to register user"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "User was already registered"})
 		return
 	}
 
 	c.JSON(http.StatusOK, gin.H{"message": "User registered successfully"})
 }
 
+// AuthenticateUser is a handler for user authentication
 func AuthenticateUser(c *gin.Context) {
 
-	var login Login
-	err := c.ShouldBindJSON(&login)
+	var credentials Credentials
+	err := c.ShouldBindJSON(&credentials)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid input"})
 		log.Println("login input is invalid:", err)
@@ -44,17 +47,17 @@ func AuthenticateUser(c *gin.Context) {
 	}
 
 	var user models.User
-	result := database.DB.Where("login = ?", login).First(&user)
+	result := database.DB.Where("login = ?", credentials.Login).First(&user)
 	if result.Error != nil {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid login"})
-		log.Println("invalid login:", login)
+		log.Println("invalid login:", credentials)
 		return
 	}
 
-	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(login.Password))
+	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(credentials.Password))
 	if err != nil {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid password"})
-		log.Println("invalid password for ", login)
+		log.Println("invalid password for ", credentials)
 		return
 	}
 
@@ -80,6 +83,7 @@ func AuthenticateUser(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "Authentication successful"})
 }
 
+// GetUserByName is a handler for getting user by name
 func GetUserByName(c *gin.Context) {
 
 	name := c.Param("name")
@@ -91,9 +95,7 @@ func GetUserByName(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"id":   user.ID,
-		"name": user.Name,
-		"age":  user.Age,
-	})
+	user.Login = ""
+	user.Password = ""
+	c.JSON(http.StatusOK, user)
 }

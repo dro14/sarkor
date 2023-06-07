@@ -6,13 +6,16 @@ import (
 	"github.com/dgrijalva/jwt-go"
 )
 
+// Claims is a struct that will be encoded to a JWT.
 type Claims struct {
 	Login  string
 	UserID uint
 }
 
+// jwtSecret is a secret key that will be used to create a signature.
 var jwtSecret = []byte("sarkor")
 
+// GenerateToken generates a jwt token and assign a login and user_id to its claims and return it.
 func GenerateToken(claims *Claims) (string, error) {
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
@@ -28,6 +31,7 @@ func GenerateToken(claims *Claims) (string, error) {
 	return tokenString, nil
 }
 
+// ValidateToken validates the jwt token and return its claims if it's valid.
 func ValidateToken(tokenString string) (*Claims, error) {
 
 	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {

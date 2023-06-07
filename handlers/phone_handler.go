@@ -9,6 +9,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// AddPhone is a handler that adds a phone number to the database
 func AddPhone(c *gin.Context) {
 
 	var phone models.Phone
@@ -24,7 +25,7 @@ func AddPhone(c *gin.Context) {
 
 	result := database.DB.Create(&phone)
 	if result.Error != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to add phone"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "You already have a phone number, please update it"})
 		log.Println("failed to add phone:", result.Error)
 		return
 	}
@@ -32,21 +33,23 @@ func AddPhone(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "Phone added successfully"})
 }
 
+// GetPhone is a handler that retrieves a phone number from the database
 func GetPhone(c *gin.Context) {
 
 	number := c.Query("q")
 
-	var phone models.Phone
-	result := database.DB.Where("phone_number = ?", number).First(&phone)
+	var phones []models.Phone
+	result := database.DB.Where("phone = ?", number).Find(&phones)
 	if result.Error != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve phone"})
-		log.Println("failed to retrieve phone:", result.Error)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve phones"})
+		log.Println("failed to retrieve phones:", result.Error)
 		return
 	}
 
-	c.JSON(http.StatusOK, phone)
+	c.JSON(http.StatusOK, phones)
 }
 
+// UpdatePhone is a handler that updates a phone number in the database
 func UpdatePhone(c *gin.Context) {
 
 	var phone models.Phone
@@ -70,6 +73,7 @@ func UpdatePhone(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "Phone updated successfully"})
 }
 
+// DeletePhone is a handler that deletes a phone number from the database
 func DeletePhone(c *gin.Context) {
 
 	phoneID := c.Param("phone_id")

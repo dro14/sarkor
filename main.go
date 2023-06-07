@@ -1,11 +1,12 @@
 package main
 
 import (
+	"log"
+
 	"github.com/dro14/sarkor/database"
 	"github.com/dro14/sarkor/handlers"
 	"github.com/dro14/sarkor/middleware"
 	"github.com/gin-gonic/gin"
-	"log"
 )
 
 func main() {
@@ -13,9 +14,11 @@ func main() {
 	database.Init()
 	r := gin.Default()
 
+	// public routes
 	r.POST("/user/register", handlers.RegisterUser)
 	r.POST("/user/auth", handlers.AuthenticateUser)
 
+	// authorized routes
 	authorized := r.Group("/user")
 	authorized.Use(middleware.Auth)
 	{

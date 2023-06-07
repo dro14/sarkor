@@ -7,6 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// Auth is a middleware that checks if the user is authorized
 func Auth(c *gin.Context) {
 
 	cookie, err := c.Request.Cookie("SESSTOKEN")

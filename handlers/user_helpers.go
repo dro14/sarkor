@@ -10,29 +10,30 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
+// validateUserInput checks every field for validity and returns a user object
 func validateUserInput(c *gin.Context) (*models.User, error) {
 
 	login := c.PostForm("login")
 	if len(login) == 0 {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Login is required"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Login field is required"})
 		return nil, errors.New("login is required")
 	}
 
 	password := c.PostForm("password")
 	if len(password) == 0 {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Password is required"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Password field is required"})
 		return nil, errors.New("password is required")
 	}
 
 	name := c.PostForm("name")
 	if len(name) == 0 {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Name is required"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Name field is required"})
 		return nil, errors.New("name is required")
 	}
 
 	ageStr := c.PostForm("age")
 	if len(ageStr) == 0 {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Age is required"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Age field is required"})
 		return nil, errors.New("age is required")
 	}
 
